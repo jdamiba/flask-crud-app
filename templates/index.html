@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Taskmaster</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+{% endblock %}
+
+{% block body %}
+<div class="content mt-5 ml-5 mr-5 mb-5">
+    <h1 style="text-align: center">Taskmaster</h1>
+    {% if tasks|length < 1 %}
+    <h4>There are no tasks in the database. Create the first one!</h4>
+    {% else %}
+        <table class="table">
+            <tr>
+                <th>Task</th>
+                <th>Added</th>
+                <th>Actions</th>
+            </tr>
+            {% for task in tasks %}
+                <tr>
+                    <td>{{task.content}}</td>
+                    <td>{{task.date_created.date()}}
+                    </td>
+                    <td>
+                        <a href="/delete/{{task.id}}">delete</a>
+                        <br/>
+                        <a href="/update/{{task.id}}">update</a>
+                    </td>
+                </tr>
+            {% endfor%}
+    </table>
+    {% endif %}
+    <form action="/" method="POST">
+        <input type="text" name="content" id="content"/>
+        <input type="submit" value="Add Task"/>
+    </form>
+</div>
+    
+    
+{% endblock %}
