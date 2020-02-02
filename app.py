@@ -9,74 +9,75 @@ from dash.dependencies import Output, Input
 
 
 server = Flask(__name__)
-server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+server.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
 db = SQLAlchemy(server)
+
 
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200), nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    def __repr__(self):
-        return '<Task %s>' % self.content
 
-@server.route('/', methods=['POST', 'GET'])
+    def __repr__(self):
+        return "<Task %s>" % self.content
+
+
+@server.route("/", methods=["POST", "GET"])
 def index():
-    if request.method == 'POST':
-        task_content = request.form['content']
+    if request.method == "POST":
+        task_content = request.form["content"]
         new_task = Todo(content=task_content)
         try:
             db.session.add(new_task)
             db.session.commit()
-            return redirect('/')
+            return redirect("/")
         except:
-            return 'There was an issue adding your task'
+            return "There was an issue adding your task"
     else:
         tasks = Todo.query.order_by(Todo.date_created).all()
-        return render_template('index.html', tasks=tasks)
+        return render_template("index.html", tasks=tasks)
 
-@server.route('/delete/<int:id>')
+
+@server.route("/delete/<int:id>")
 def delete(id):
     task_to_delete = Todo.query.get_or_404(id)
     try:
         db.session.delete(task_to_delete)
         db.session.commit()
-        return redirect('/')
+        return redirect("/")
     except:
-        return 'There was an issue deleting your task'
+        return "There was an issue deleting your task"
 
-@server.route('/update/<int:id>', methods=['POST', 'GET'])
+
+@server.route("/update/<int:id>", methods=["POST", "GET"])
 def update(id):
     task_to_update = Todo.query.get_or_404(id)
-    if request.method == 'POST':
-        task_to_update.content = request.form['content']
+    if request.method == "POST":
+        task_to_update.content = request.form["content"]
         try:
             db.session.commit()
-            return redirect('/')
+            return redirect("/")
         except:
-            return 'There was an issue updating your task'
+            return "There was an issue updating your task"
     else:
-        return render_template('update.html', task=task_to_update)
+        return render_template("update.html", task=task_to_update)
 
-app = dash.Dash(
-    __name__,
-    server=server,
-    routes_pathname_prefix='/dash/'
-)
+
+app = dash.Dash(__name__, server=server, routes_pathname_prefix="/dash/")
 
 app_server = app.server
 
 app.layout = html.Div(children=[html.Div(id="callback"), html.Div(id="content")])
 
+
 @app.callback(
     Output(component_id="content", component_property="children"),
-    [ Input("callback", "children"),]
+    [Input("callback", "children"),],
 )
 def update_layout(n_clicks):
     tasks = Todo.query.order_by(Todo.date_created).all()
     return "tasks is {}".format(tasks)
-    
-if __name__ == '__main__':
-    app.run_server(debug=True)
 
-    
+
+if __name__ == "__main__":
+    app.run_server(debug=True)
